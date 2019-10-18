@@ -1,0 +1,11 @@
+- [x] Accept kwargs in submit
+- [x] Context manager
+  - Note: shutdown cannot be activated as registered atexit function 
+- [x] Multi-level queue
+- [x] Check for memory leaks
+---
+- [ ] Exception handling
+- [ ] Task cancellation
+- [ ] Improve task stealing
+- [ ] Per worker statistics
+- [ ] Improve PEP 3148 compatibility

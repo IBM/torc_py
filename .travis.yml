@@ -1,0 +1,29 @@
+os: linux
+dist: trusty
+language: python
+
+python:
+  - 3.7
+
+addons:
+  apt:
+    packages:
+      - gfortran
+      - libblas-dev
+      - liblapack-dev
+      - libopenmpi-dev
+      - openmpi-bin
+
+before_install:
+  - export CC=mpicc
+
+install:
+  - pip install -e .
+  - pip install pytest
+
+script:
+  - pytest -vs tests
+  - mpirun -n 2 pytest -vs tests
+
+
+
