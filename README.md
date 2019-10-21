@@ -21,7 +21,7 @@ to the typical SPMD execution mode that is natively supported by MPI.
 Prerequisites: `python3 >= 5` and `pip3`.
 
 ```bash
-git clone git@github.ibm.com:HAT/torc_py.git
+git clone git@github.com:IBM/torc_py.git
 cd torc_py
 pip3 install .
 ```
@@ -32,7 +32,7 @@ The main requirements are *mpi4py* and *termcolor*, while *numpy*, *cma*, *h5py*
 
 ### 2.2. Testing
 
-We use the file `examples\ex00_masterworker.py` to demonstrate the execution of the tasking library using multiple processes and threads. The task function receives as input a number `x`, sleeps for one second and then computes and returns as result the square `x*x`. The main task spawns `ntasks` (four) tasks that are distributed cyclically, by default, to the available workers and then calls `wait`, waiting for their completion. Finally, it prints the task results and reports the elapsed time.
+We use the file `examples\ex00_masterworker.py` to demonstrate the execution of the tasking library using multiple processes and threads. The task function receives as input a number `x`, sleeps for one second and then computes and returns as result the square value `x*x`. The main task spawns `ntasks` (= four) tasks that are distributed cyclically, by default, to the available workers and then calls `wait`, waiting for their completion. Finally, it prints the task results and reports the elapsed time.
 
 The MPI processes start with the execution of `__main__` and call `torc.start(main)`, which initializes the tasking library and then executes the primary application task (with task function `main()`) on the process with rank 0.  
 
@@ -177,7 +177,7 @@ if __name__ == '__main__':
 
 ### 3.2. Parallel map
 
-Equivalent to the previous example but this timie using the `map` function with default chunk size equal to 1.
+Equivalent to the previous example but this time using the `map` function with default chunk size equal to 1.
 
 ```python
 import torc
@@ -496,11 +496,11 @@ if __name__ == '__main__':
 ### 4.1. Task management routines
 
 - `submit(f, *args, qid=-1, callback=None, **kwargs)`:
-submits a new task that corresponds to the asynchronous execution of function `f()` with input arguments `args`. The task is submitted to the worker with global identifier `qid`. If `qid` is equal to -1, the cyclic distribution of tasks to processes is performed. The `callback` function is called on the rank that spawned the task, when the task completes and its results have been returned to that node.
+submits a new task that corresponds to the asynchronous execution of function `f()` with input arguments `args`. The task is submitted to the worker with global identifier `qid`. If `qid` is equal to -1, then cyclic distribution of tasks to processes is performed. The `callback` function is called on the rank that spawned the task, when the task completes and its results have been returned to that node.
 - `map(f, *seq, chunksize=1)`: executes function `f()` on a sequence (list) of arguments.
 It returns a list with the results of all tasks. It is similar to the `map()` function of Python and other packages, allowing for straightforward usage of existing codes.
 - `wait(tasks=None)`: the current task waits for all its child tasks to finish. The underlying worker thread is released and can execute other tasks.
-- `as_completed(tasks=None)`: similar to `wait` but returns the completed child tasks in the order they completed their execution.
+- `as_completed(tasks=None)`: similar to `wait` but returns the finished child tasks in the order they completed their execution.
 
 ### 4.2. Application setup
 
@@ -514,16 +514,16 @@ if __name__ == '__main__':
 ### 4.3. Low-level application setup
 
 - `init()`: initializes the tasking library.
-- `launch(f)`: launches function `f()` on process with rank 0 as the primary application task. Collective call that must be called by all MPI processes. If `f == NULL` then the function returns on rank 0 but activates the main worker thread of all other MPI processes. Therefore, the current function becomes the primary application task.
+- `launch(f)`: launches function `f()` as primary application task on the MPI process with rank 0. It is a collective call that must be called by all MPI processes. If `f == NULL` then the function returns on rank 0 but activates the scheduling loop of the main worker thread on all other MPI processes. Therefore, the current function becomes the primary application task running on rank 0.
 - `shutdown()`: shutdowns the tasking library.
 
 ### 4.4. MPI code
 
-- `spmd(f, *args)`: executes function `f()` on all MPI processes. It allows for dynamic switching from the master-worker to the SPMD execution mode, allowing legacy MPI code to be used within the function.
+- `spmd(f, *args)`: executes function `f()` on all MPI processes. It allows for dynamic switching from the master-worker to the SPMD execution mode, allowing thus legacy MPI code to be used within the function.
 
 ### 4.5. Additional calls
 
-- `enable_stealing(), disable_stealing()`: controls task stealing between MPI processes.
+- `enable_stealing(), disable_stealing()`: control task stealing between MPI processes.
 - `gettime()`: current time in seconds (float).
 - `worker_id(), num_workers()`: return the global worker thread id and the total number of workers.
 - `node_id(), num_nodes()`: return the rank of the calling MPI process and the number of MPI processes.
@@ -540,9 +540,9 @@ if __name__ == '__main__':
 
 ## 5. Design and architecture
 
-The library is implemented on top of MPI and multithreading and it can considered as the pure Python implementation of the [*TORC*](https://github.ibm.com/HAT/torc_lite) C/C++ runtime library [Hadjidoukas:2012], a software package for programming and running unaltered task-parallel programs on both shared and distributed memory platforms. The library supports platform agnostic nested parallelism and automatic load balancing in large scale computing architectures. It has been used at the core of the [Π4U](https://github.ibm.com/cselab/pi4u) framework [Hadjidoukas:2015], allowing for HPC implementations for both multicore and GPU clusters of algorithms such as Transitional Markov Chain Monte Carlo (TMCMC) and Approximate Bayesian Computational Subset-simulation.
+The library is implemented on top of MPI and multithreading and it can considered as the pure Python implementation of the [*TORC*](https://github.com/phadjido/torc_lite) C/C++ runtime library [Hadjidoukas:2012], a software package for programming and running unaltered task-parallel programs on both shared and distributed memory platforms. The library supports platform agnostic nested parallelism and automatic load balancing in large scale computing architectures. It has been used at the core of the [Π4U](https://github.ibm.com/cselab/pi4u) framework [Hadjidoukas:2015], allowing for HPC implementations, for both multicore and GPU clusters, of algorithms such as Transitional Markov Chain Monte Carlo (TMCMC) and Approximate Bayesian Computational Subset-simulation.
 
-*torc_py* is built on top of the following third-party Python packages: *mpi4py*, *threading*, *queue*.
+*torc_py* is mainly built on top of the following third-party Python packages: *mpi4py*, *threading*, *queue*.
 Tasks are instantiated as Python dictionaries, which introduce less overhead than objects. The result of the task function is transparently stored in the task descriptor (future) on the MPI process that spawned the task. According to PEP 3184, the result can be then accessed as `task.result()`. Similarly, the input parameters can be accessed as `task.input()`.
 
 All remote operations are performed asynchronously through a server thread. This thread is responsible for:
@@ -558,7 +558,7 @@ The internal architecture of *torc_py* is depicted in the following figure:
 ## 6. Performance evaluation
 
 TORC, the C/C++ counterpart of torc_py has been used extensively on small and large scale HPC environments
-such as the Euler cluster (ETH) and the Piz Daint (CSCS) supercomputer. TORC has been used to orchestrate the scheduling of function evaluations of the TMCMC method within Π4U on multiple cluster nodes. The TMCMC method within is able to achieve an overall parallel efficiency of more than 90% on 1024 compute nodes of Piz Daint running hybrid MPI+GPU molecular simulation codes with highly variable time-to-solution between simulations with different interaction parameters.
+such as the Euler cluster (ETH) and the Piz Daint (CSCS) supercomputer. TORC has been used to orchestrate the scheduling of function evaluations of the TMCMC method within Π4U on multiple cluster nodes. The TMCMC method was able to achieve an overall parallel efficiency of more than 90% on 1024 compute nodes of Piz Daint running hybrid MPI+GPU molecular simulation codes with highly variable time-to-solution between simulations with different interaction parameters.
 
 ### 6.1. Preprocessing of image datasets
 
@@ -582,8 +582,7 @@ def process_train_image(i, target_dim):
     return dx, dy
 ```
 
-The parallelization of the sequential for loop is performed with the map function,
-using a chunk size of 32 so as to reduce the number of spawned tasks.
+The parallelization of the sequential for loop is performed with the map function, using a chunk size of 32 so as to reduce the number of spawned tasks.
 
 ```python
 sequence_i = range(n_train)
