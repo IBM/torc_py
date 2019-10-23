@@ -1,5 +1,5 @@
 mpi4py
 numpy
 termcolor==1.1.0
-cma==2.6.0
-Pillow==5.2.0
+cma
+pillow>=6.2.0
