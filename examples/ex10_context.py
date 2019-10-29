@@ -10,7 +10,7 @@ http://www.eclipse.org/legal/epl-v10.html
 Master-worker demo using context manager and as_completed
 """
 import time
-import torc
+import torcpy as torc
 import threading
 
 

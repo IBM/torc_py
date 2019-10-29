@@ -9,7 +9,7 @@ http://www.eclipse.org/legal/epl-v10.html
 """
 Explicit task management with submit and wait
 """
-import torc
+import torcpy as torc
 
 
 def work(x):

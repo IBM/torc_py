@@ -10,11 +10,8 @@ http://www.eclipse.org/legal/epl-v10.html
 Master-worker demo, adapted from torc-lite
 """
 import time
-import torc
+import torcpy as torc
 import threading
-
-#from pympler import tracker
-#tr = tracker.SummaryTracker()
 
 
 def work(x):

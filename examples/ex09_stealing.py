@@ -10,7 +10,7 @@ http://www.eclipse.org/legal/epl-v10.html
 Demonstration of work stealing
 """
 import time
-import torc
+import torcpy as torc
 
 
 def work(x):

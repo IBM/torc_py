@@ -10,7 +10,7 @@ http://www.eclipse.org/legal/epl-v10.html
 Switch from master-worker to SPMD and call MPI bcast
 """
 import numpy
-import torc
+import torcpy as torc
 from mpi4py import MPI
 
 N = 3

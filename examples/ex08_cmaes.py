@@ -12,7 +12,7 @@ Straightforward integration of torc_py with cmaes
 # pip install cma
 import cma
 import time
-import torc
+import torcpy as torc
 
 
 def rosenbrock(x):

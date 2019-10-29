@@ -39,7 +39,7 @@ The MPI processes start with the execution of `__main__` and call `torc.start(ma
 ```python
 import time
 import threading
-import torc
+import torcpy as torc
 
 def work(x):
     time.sleep(1)
@@ -114,7 +114,7 @@ TORC: node[1]: created=0, executed=2
 The single MPI process is initialized with two worker threads, with global ids 0 and 1. The four tasks are inserted in the local process queue and extracted and executed by the two workers. The primary task is executed by worker 0 and it is also tied to it, therefore it always continues on the same worker.
 
 ```console
-$ mpirun -n 1 -env TORC_WORKERS=2  python3 ex00_masterworker.py
+$ mpirun -n 1 -env TORCPY_WORKERS=2  python3 ex00_masterworker.py
 TORC: main starts
 work inp=1.000, out=1.000 ...on node 0 worker 0 thread 4607645120
 work inp=2.000, out=4.000 ...on node 0 worker 1 thread 123145550958592
@@ -133,7 +133,7 @@ TORC: node[0]: created=4, executed=4
 There are two MPI processes with two workers each, therefore workers 0 and 1 belong to the process with rank 0 and workers 2 and 3 to rank 1. Since task distribution is performed on a worker basis, the first and the second tasks are submitted locally to node 0 while the third and fourth tasks are send to node 1. Eventually, every worker executes one task and the application is executed 4x times faster.
 
 ```console
-$ mpirun -n 2 -env TORC_WORKERS=2  python3 ex00_masterworker.py
+$ mpirun -n 2 -env TORCPY_WORKERS=2  python3 ex00_masterworker.py
 TORC: main starts
 work inp=2.000, out=4.000 ...on node 0 worker 0 thread 4560111040
 work inp=1.000, out=1.000 ...on node 0 worker 1 thread 123145531727872
@@ -155,7 +155,7 @@ TORC: node[1]: created=0, executed=2
 The primary task spawns and distributes cyclically 10 tasks to the available workers, waits for their completion and finally prints the results.
 
 ```python
-import torc
+import torcpy as torc
 
 
 def work(x):
@@ -180,7 +180,7 @@ if __name__ == '__main__':
 Equivalent to the previous example but this time using the `map` function with default chunk size equal to 1.
 
 ```python
-import torc
+import torcpy as torc
 
 def work(x):
     return x*x
@@ -200,7 +200,7 @@ if __name__ == '__main__':
 Four tasks are spawned and executed by the available workers. When a task completes, it is passed as argument to a callback task that is executed by the worker threads of the node (process) where the parent task is active.
 
 ```python
-import torc
+import torcpy as torc
 import threading
 
 
@@ -241,7 +241,7 @@ if __name__ == '__main__':
 Multiple levels of parallelism are exploited in this commonly used parallelization example of recursive Fibonacci.
 
 ```python
-import torc
+import torcpy as torc
 
 
 def fib(n):
@@ -280,7 +280,7 @@ to the SPMD execution model and allowing for direct data broadcast using `Bcast`
 
 ```python
 import numpy
-import torc
+import torcpy as torc
 from mpi4py import MPI
 
 N = 3
@@ -318,7 +318,7 @@ In this example, the callback function adds the task result to a global variable
 a reduction operation. This example assumes that a single worker thread per MPI process is used and that callbacks are instantiated as tasks that are executed by worker threads.
 
 ```python
-import torc
+import torcpy as torc
 
 sum_v = 0
 
@@ -358,7 +358,7 @@ import os
 import sys
 import time
 from PIL import Image
-import torc
+import torcpy as torc
 
 files = []
 
@@ -415,7 +415,7 @@ if __name__ == "__main__":
 
 ```python
 import cma  # python package for numerical optimization
-import torc
+import torcpy as torc
 
 def rosenbrock(x):
     """Rosenbrock test objective function"""
@@ -443,7 +443,7 @@ The idle workers that find the local queue empty, issue steal requests and event
 
 ```python
 import time
-import torc
+import torcpy as torc
 
 
 def work(x):
@@ -532,10 +532,10 @@ if __name__ == '__main__':
 
 ### 4.7. Environment variables
 
-- `TORC_WORKERS` (integer): number of worker threads used by each MPI processor. Default value is 1.
-- `TORC_STEALING` (boolean): determines if internode task-stealing is enabled or not. Default value is "False".
-- `TORC_SERVER_YIELDTIME` (float): for how many seconds an idle server thread will sleep releasing the processor. Default value in 0.01.
-- `TORC_WORKER_YIELDTIME` (float): for how many seconds an idle worker thread will sleep releasing the processor. Default value in 0.01.
+- `TORCPY_WORKERS` (integer): number of worker threads used by each MPI processor. Default value is 1.
+- `TORCPY_STEALING` (boolean): determines if internode task-stealing is enabled or not. Default value is "False".
+- `TORCPY_SERVER_YIELDTIME` (float): for how many seconds an idle server thread will sleep releasing the processor. Default value in 0.01.
+- `TORCPY_WORKER_YIELDTIME` (float): for how many seconds an idle worker thread will sleep releasing the processor. Default value in 0.01.
 
 
 ## 5. Design and architecture
@@ -607,7 +607,7 @@ for t in task_results:
 We spawn a single MPI process per core and then utilize 1,2 and 4 workers per process. The command for running the benchmark for various numbers of processes (*NR*) and local workers (*NW*) on the specific computing platform is as follows:
 
 ```console
-mpirun -n $NR -x TORC_WORKERS=$NW --bind-to core --map-by socket --mca btl self,tcp  python3 benchmark.py
+mpirun -n $NR -x TORCPY_WORKERS=$NW --bind-to core --map-by socket --mca btl self,tcp  python3 benchmark.py
 ```
 
 The measurements include the time for spawning the parallelism, executing the preprocessing in parallel and waiting for the completion of all tasks, i.e. collecting the results back. We observe that the application exhibits good scaling and achieves ~78% efficiency when 20 processes of one worker thread each are used. The performance does not scale linearly with the number of cores as image decompression and processing stress the memory subsystem of the node. We also observe that multithreading further improves the performance, allowing for a maximum achieved speedup of 22x (20 processes, 4 threads).

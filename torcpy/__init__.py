@@ -5,4 +5,4 @@ from .runtime import finalize, waitall
 from .runtime import as_completed
 from .runtime import TorcPoolExecutor
 
-name = "torc"
+name = "torcpy"

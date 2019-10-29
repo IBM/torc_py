@@ -9,7 +9,7 @@ http://www.eclipse.org/legal/epl-v10.html
 """
 Task parallelism with map
 """
-import torc
+import torcpy as torc
 
 
 def work(x):

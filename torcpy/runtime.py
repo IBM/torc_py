@@ -56,7 +56,7 @@ torc_executed = 0
 torc_created = 0
 torc_stats_lock = threading.Lock()
 torc_steal_lock = threading.Lock()
-torc_num_workers = int(os.getenv("TORC_WORKERS", 1))
+torc_num_workers = int(os.getenv("TORCPY_WORKERS", 1))
 torc_workers = []
 torc_exit_flag = False
 
@@ -582,17 +582,17 @@ def init():
         else:
             _torc_log.warning("Info: MPI.Query_thread returns MPI.THREAD_MULTIPLE")
 
-    torc_num_workers = int(os.getenv("TORC_WORKERS", 1))
+    torc_num_workers = int(os.getenv("TORCPY_WORKERS", 1))
     # print("torc_num_workers=", torc_num_workers, flush=True)
 
-    flag = os.getenv("TORC_STEALING", "False")
+    flag = os.getenv("TORCPY_STEALING", "False")
     if flag == "True":
         TORC_STEALING_ENABLED = True
     else:
         TORC_STEALING_ENABLED = False
 
-    TORC_SERVER_YIELDTIME = float(os.getenv("TORC_SERVER_YIELDTIME", 0.01))
-    TORC_WORKER_YIELDTIME = float(os.getenv("TORC_WORKER_YIELDTIME", 0.01))
+    TORC_SERVER_YIELDTIME = float(os.getenv("TORCPY_SERVER_YIELDTIME", 0.01))
+    TORC_WORKER_YIELDTIME = float(os.getenv("TORCPY_WORKER_YIELDTIME", 0.01))
 
     torc_tls.id = 0
     main_task = dict()
@@ -627,7 +627,7 @@ def _terminate_nodes():
 def _print_stats():
     global torc_created, torc_executed
     me = node_id()
-    msg = "TORC: node[{}]: created={}, executed={}".format(me, torc_created, torc_executed)
+    msg = "TORCPY: node[{}]: created={}, executed={}".format(me, torc_created, torc_executed)
     cprint(msg, "green")
     sys.stdout.flush()
     torc_created = 0
@@ -682,7 +682,7 @@ def launch(main_function):
         _torc_launched = True
 
     if node_id() == 0:
-        cprint("TORC: main starts", "green")
+        cprint("TORCPY: main starts", "green")
         sys.stdout.flush()
         torc_comm.barrier()
 

@@ -9,7 +9,7 @@ http://www.eclipse.org/legal/epl-v10.html
 """
 Reduction on master node using callbacks
 """
-import torc
+import torcpy as torc
 
 # import threading
 

@@ -29,11 +29,11 @@ if os.path.exists(requirements_filepath):
     for line in open(requirements_filepath):
         DEPENDENCIES.append(line.strip())
 
-NAME = 'torc'
+NAME = 'torcpy'
 
 # write MANIFEST
 with open(os.path.join(SETUP_DIR, 'MANIFEST.in'), 'w') as fp:
-    for a_file in package_files('torc'):
+    for a_file in package_files('torcpy'):
         print(a_file)
         fp.write('include {}\n'.format(a_file))
 

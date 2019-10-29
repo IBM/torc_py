@@ -10,7 +10,7 @@ http://www.eclipse.org/legal/epl-v10.html
 Simple example of callbacks
 """
 import time
-import torc
+import torcpy as torc
 import threading
 
 

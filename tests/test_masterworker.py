@@ -7,7 +7,7 @@ http://www.eclipse.org/legal/epl-v10.html
 """
 
 
-import torc
+import torcpy as torc
 import time
 import os
 import sys
@@ -40,7 +40,7 @@ def main():
 
 
 def test_masterworker(nworkers):
-    os.environ["TORC_WORKERS"] = str(nworkers)
+    os.environ["TORCPY_WORKERS"] = str(nworkers)
     torc.start(main)
 
 
