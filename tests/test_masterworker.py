@@ -7,7 +7,7 @@ http://www.eclipse.org/legal/epl-v10.html
 """
 
 
-import torcpy as torc
+import torcpy
 import time
 import os
 import sys
@@ -23,13 +23,13 @@ def main():
     ntasks = 4
     sequence = range(1, ntasks + 1)
 
-    t0 = torc.gettime()
+    t0 = torcpy.gettime()
     tasks = []
     for i in sequence:
-        task = torc.submit(work, i)
+        task = torcpy.submit(work, i)
         tasks.append(task)
-    torc.wait()
-    t1 = torc.gettime()
+    torcpy.wait()
+    t1 = torcpy.gettime()
     print("elapsed time={:.3f} s".format(t1-t0))
 
     for t in tasks:
@@ -41,7 +41,7 @@ def main():
 
 def test_masterworker(nworkers):
     os.environ["TORCPY_WORKERS"] = str(nworkers)
-    torc.start(main)
+    torcpy.start(main)
 
 
 if __name__ == "__main__":

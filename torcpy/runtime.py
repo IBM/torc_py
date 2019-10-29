@@ -6,7 +6,7 @@ which accompanies this distribution, and is available at
 http://www.eclipse.org/legal/epl-v10.html
 """
 
-"""Implements torc_py runtime system and API."""
+"""Implements torcpy runtime system and API."""
 
 import copy
 import ctypes
@@ -583,7 +583,6 @@ def init():
             _torc_log.warning("Info: MPI.Query_thread returns MPI.THREAD_MULTIPLE")
 
     torc_num_workers = int(os.getenv("TORCPY_WORKERS", 1))
-    # print("torc_num_workers=", torc_num_workers, flush=True)
 
     flag = os.getenv("TORCPY_STEALING", "False")
     if flag == "True":

@@ -1,17 +1,17 @@
-# torc_py: supporting task-based parallelism in Python
+# torcpy: supporting task-based parallelism in Python
 
 ## 1. Introduction ##
 
-**torc_py** is a platform-agnostic adaptive load balancing library that orchestrates scheduling of multiple function evaluations on both shared and distributed memory platforms.
+**torcpy** is a platform-agnostic adaptive load balancing library that orchestrates scheduling of multiple function evaluations on both shared and distributed memory platforms.
 
-As an open-source tasking library, **torc_py**, aims at providing a parallel computing framework that:
+As an open-source tasking library, **torcpy**, aims at providing a parallel computing framework that:
 - offers a unified approach for expressing and executing task-based parallelism on both shared and distributed memory platforms
 - takes advantage of MPI internally in a transparent to the user way but also allows the use of legacy MPI code at the application level
 - provides lightweight support for parallel nested loops and map functions
 - supports task stealing at all levels of parallelism
 - exports the above functionalities through a simple and single Python package
 
-torc_py exports an interface compatible with PEP 3148. Therefore tasks (futures) can be spawned and joined with the *submit* and *wait* calls. A parallel *map* function is provided, while *spmd* allows for switching
+torcpy exports an interface compatible with PEP 3148. Therefore tasks (futures) can be spawned and joined with the *submit* and *wait* calls. A parallel *map* function is provided, while *spmd* allows for switching
 to the typical SPMD execution mode that is natively supported by MPI.
 
 ## 2. Installation and testing
@@ -34,30 +34,30 @@ The main requirements are *mpi4py* and *termcolor*, while *numpy*, *cma*, *h5py*
 
 We use the file `examples\ex00_masterworker.py` to demonstrate the execution of the tasking library using multiple processes and threads. The task function receives as input a number `x`, sleeps for one second and then computes and returns as result the square value `x*x`. The main task spawns `ntasks` (= four) tasks that are distributed cyclically, by default, to the available workers and then calls `wait`, waiting for their completion. Finally, it prints the task results and reports the elapsed time.
 
-The MPI processes start with the execution of `__main__` and call `torc.start(main)`, which initializes the tasking library and then executes the primary application task (with task function `main()`) on the process with rank 0.  
+The MPI processes start with the execution of `__main__` and call `torcpy.start(main)`, which initializes the tasking library and then executes the primary application task (with task function `main()`) on the process with rank 0.  
 
 ```python
 import time
 import threading
-import torcpy as torc
+import torcpy
 
 def work(x):
     time.sleep(1)
     y = x**2
-    print("work inp={:.3f}, out={:.3f} ...on node {:d} worker {} thread {}".format(x, y, torc.node_id(), torc.worker_id(), threading.get_ident()), flush=True)
+    print("work inp={:.3f}, out={:.3f} ...on node {:d} worker {} thread {}".format(x, y, torcpy.node_id(), torcpy.worker_id(), threading.get_ident()), flush=True)
     return y
 
 def main():
     ntasks = 4
     sequence = range(1, ntasks + 1)
 
-    t0 = torc.gettime()
+    t0 = torcpy.gettime()
     tasks = []
     for i in sequence:
-        task = torc.submit(work, i)
+        task = torcpy.submit(work, i)
         tasks.append(task)
-    torc.wait()
-    t1 = torc.gettime()
+    torcpy.wait()
+    t1 = torcpy.gettime()
 
     for t in tasks:
         print("Received: sqrt({})={:.3f}".format(t.input(), t.result()))
@@ -65,18 +65,18 @@ def main():
     print("Elapsed time={:.2f} s".format(t1 - t0))
 
 if __name__ == '__main__':
-    torc.start(main)
+    torcpy.start(main)
 ```
 
 ### 2.3 Execution of tests
 
 #### 2.3.1. One MPI process with one worker
 
-This is similar to the sequential execution of the code with the main difference that the task functions are executed not immediately but in deferred mode. No MPI communication takes place and the tasks are directly inserted in the local queue. Upon `torc.wait()`, the current (primary) application task suspends its execution, the scheduling loop of the underlying worker is activated and the child tasks are fetched and executed. When the last child task completes, the primary task resumes and prints the results. Moreover, the tasking library reports how many tasks where created and executed by each MPI process.
+This is similar to the sequential execution of the code with the main difference that the task functions are executed not immediately but in deferred mode. No MPI communication takes place and the tasks are directly inserted in the local queue. Upon `torcpy.wait()`, the current (primary) application task suspends its execution, the scheduling loop of the underlying worker is activated and the child tasks are fetched and executed. When the last child task completes, the primary task resumes and prints the results. Moreover, the tasking library reports how many tasks where created and executed by each MPI process.
 
 ```console
 $ mpirun -n 1 python3 ex00_masterworker.py
-TORC: main starts
+TORCPY: main starts
 work inp=1.000, out=1.000 ...on node 0 worker 0 thread 4536538560
 work inp=2.000, out=4.000 ...on node 0 worker 0 thread 4536538560
 work inp=3.000, out=9.000 ...on node 0 worker 0 thread 4536538560
@@ -86,7 +86,7 @@ Received: sqrt(2)=4.000
 Received: sqrt(3)=9.000
 Received: sqrt(4)=16.000
 Elapsed time=4.03 s
-TORC: node[0]: created=4, executed=4
+TORCPY: node[0]: created=4, executed=4
 ```
 
 #### 2.3.2. Two MPI process with one worker each
@@ -95,7 +95,7 @@ Two MPI processes (*nodes*) are started with rank 0 and 1, respectively. Each pr
 
 ```console
 $ mpirun -n 2 python3 ex00_masterworker.py
-TORC: main starts
+TORCPY: main starts
 work inp=1.000, out=1.000 ...on node 0 worker 0 thread 4585866688
 work inp=2.000, out=4.000 ...on node 1 worker 1 thread 4623332800
 work inp=3.000, out=9.000 ...on node 0 worker 0 thread 4585866688
@@ -105,8 +105,8 @@ Received: sqrt(2)=4.000
 Received: sqrt(3)=9.000
 Received: sqrt(4)=16.000
 Elapsed time=2.03 s
-TORC: node[0]: created=4, executed=2
-TORC: node[1]: created=0, executed=2
+TORCPY: node[0]: created=4, executed=2
+TORCPY: node[1]: created=0, executed=2
 ```
 
 #### 2.3.3. One MPI process with two workers
@@ -115,7 +115,7 @@ The single MPI process is initialized with two worker threads, with global ids 0
 
 ```console
 $ mpirun -n 1 -env TORCPY_WORKERS=2  python3 ex00_masterworker.py
-TORC: main starts
+TORCPY: main starts
 work inp=1.000, out=1.000 ...on node 0 worker 0 thread 4607645120
 work inp=2.000, out=4.000 ...on node 0 worker 1 thread 123145550958592
 work inp=3.000, out=9.000 ...on node 0 worker 0 thread 4607645120
@@ -125,7 +125,7 @@ Received: sqrt(2)=4.000
 Received: sqrt(3)=9.000
 Received: sqrt(4)=16.000
 Elapsed time=2.02 s
-TORC: node[0]: created=4, executed=4
+TORCPY: node[0]: created=4, executed=4
 ```
 
 #### 2.3.4 Two MPI processes with two workers each
@@ -134,7 +134,7 @@ There are two MPI processes with two workers each, therefore workers 0 and 1 bel
 
 ```console
 $ mpirun -n 2 -env TORCPY_WORKERS=2  python3 ex00_masterworker.py
-TORC: main starts
+TORCPY: main starts
 work inp=2.000, out=4.000 ...on node 0 worker 0 thread 4560111040
 work inp=1.000, out=1.000 ...on node 0 worker 1 thread 123145531727872
 work inp=4.000, out=16.000 ...on node 1 worker 2 thread 4643915200
@@ -144,11 +144,13 @@ Received: sqrt(2)=4.000
 Received: sqrt(3)=9.000
 Received: sqrt(4)=16.000
 Elapsed time=1.04 s
-TORC: node[0]: created=4, executed=2
-TORC: node[1]: created=0, executed=2
+TORCPY: node[0]: created=4, executed=2
+TORCPY: node[1]: created=0, executed=2
 ```
 
 ## 3. Examples
+
+Please note that the `torcpy` module is imported as `torc` in the following examples.
 
 ### 3.1. Submit and wait
 
@@ -385,7 +387,7 @@ def work(i):
 def main():
     global files
 
-    # SPMD execution: torc_py and MPI initialization
+    # SPMD execution: torcpy and MPI initialization
     torc.init()
 
     # SPMD execution: common global initialization takes place here
@@ -508,7 +510,7 @@ It returns a list with the results of all tasks. It is similar to the `map()` fu
 
 ```python
 if __name__ == '__main__':
-    torc.start(main)
+    torcpy.start(main)
 ```
 
 ### 4.3. Low-level application setup
@@ -542,7 +544,7 @@ if __name__ == '__main__':
 
 The library is implemented on top of MPI and multithreading and it can considered as the pure Python implementation of the [*TORC*](https://github.com/phadjido/torc_lite) C/C++ runtime library [Hadjidoukas:2012], a software package for programming and running unaltered task-parallel programs on both shared and distributed memory platforms. The library supports platform agnostic nested parallelism and automatic load balancing in large scale computing architectures. It has been used at the core of the [Π4U](https://github.ibm.com/cselab/pi4u) framework [Hadjidoukas:2015], allowing for HPC implementations, for both multicore and GPU clusters, of algorithms such as Transitional Markov Chain Monte Carlo (TMCMC) and Approximate Bayesian Computational Subset-simulation.
 
-*torc_py* is mainly built on top of the following third-party Python packages: *mpi4py*, *threading*, *queue*.
+*torcpy* is mainly built on top of the following third-party Python packages: *mpi4py*, *threading*, *queue*.
 Tasks are instantiated as Python dictionaries, which introduce less overhead than objects. The result of the task function is transparently stored in the task descriptor (future) on the MPI process that spawned the task. According to PEP 3184, the result can be then accessed as `task.result()`. Similarly, the input parameters can be accessed as `task.input()`.
 
 All remote operations are performed asynchronously through a server thread. This thread is responsible for:
@@ -550,14 +552,14 @@ All remote operations are performed asynchronously through a server thread. This
 - receiving the completed tasks and their results
 - serving task stealing requests
 
-The internal architecture of *torc_py* is depicted in the following figure:
+The internal architecture of *torcpy* is depicted in the following figure:
 
 ![](./doc/torc_architecture.png)
 
 
 ## 6. Performance evaluation
 
-TORC, the C/C++ counterpart of torc_py has been used extensively on small and large scale HPC environments
+TORC, the C/C++ counterpart of torcpy has been used extensively on small and large scale HPC environments
 such as the Euler cluster (ETH) and the Piz Daint (CSCS) supercomputer. TORC has been used to orchestrate the scheduling of function evaluations of the TMCMC method within Π4U on multiple cluster nodes. The TMCMC method was able to achieve an overall parallel efficiency of more than 90% on 1024 compute nodes of Piz Daint running hybrid MPI+GPU molecular simulation codes with highly variable time-to-solution between simulations with different interaction parameters.
 
 ### 6.1. Preprocessing of image datasets
@@ -589,7 +591,7 @@ sequence_i = range(n_train)
 sequence_t = [target_dim] * n_train
 
 # parallel map with chunksize
-task_results = torc.map(process_train_image, sequence_i, sequence_t, chunksize=32)
+task_results = torcpy.map(process_train_image, sequence_i, sequence_t, chunksize=32)
 
 # write the results to the HDF5 dataset
 i = 0
@@ -630,7 +632,7 @@ There is a number of Python packages and framework that enable the orchestration
 | *celery (4.2.0)*   | Yes      | No                           | No  |
 | *dask (1.2.2)*     | Yes      | Inefficiently (more workers) | No  |
 | *pycompss (2.4)*   | Yes      | Yes                          | No  |
-| **torc_py**        | Yes      | Yes                          | Yes |
+| **torcpy**         | Yes      | Yes                          | Yes |
 
 
 
