@@ -13,8 +13,8 @@ import time
 import torc
 import threading
 
-from pympler import tracker
-tr = tracker.SummaryTracker()
+#from pympler import tracker
+#tr = tracker.SummaryTracker()
 
 
 def work(x):

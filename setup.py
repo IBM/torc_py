@@ -46,15 +46,16 @@ setup(
     author='Panagiotis Chatzidoukas',
     author_email='hat@zurich.ibm.com',
     description='TORC Tasking library',
+    licence='Eclipse Public License v1.0',
     long_description=long_description,
     long_description_content_type="text/markdown",
-    url='http://github.ibm.com/hat/torc_py/',
+    url='http://github.com/ibm/torc_py/',
     packages=find_packages('.'),
     include_package_data=True,
     install_requires=DEPENDENCIES,
     classifiers=[
         "Programming Language :: Python :: 3",
-        "License :: OSI Approved :: Eclipse Public License v1.0",
+        "License :: OSI Approved",
         "Operating System :: OS Independent",
     ],
     zip_safe=False
