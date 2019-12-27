@@ -536,8 +536,8 @@ if __name__ == '__main__':
 
 - `TORCPY_WORKERS` (integer): number of worker threads used by each MPI processor. Default value is 1.
 - `TORCPY_STEALING` (boolean): determines if internode task-stealing is enabled or not. Default value is "False".
-- `TORCPY_SERVER_YIELDTIME` (float): for how many seconds an idle server thread will sleep releasing the processor. Default value in 0.01.
-- `TORCPY_WORKER_YIELDTIME` (float): for how many seconds an idle worker thread will sleep releasing the processor. Default value in 0.01.
+- `TORCPY_SERVER_YIELDTIME` (float): for how many seconds an idle server thread will sleep releasing the processor. Default value is 0.01.
+- `TORCPY_WORKER_YIELDTIME` (float): for how many seconds an idle worker thread will sleep releasing the processor. Default value is 0.01.
 
 
 ## 5. Design and architecture
@@ -619,7 +619,7 @@ The measurements include the time for spawning the parallelism, executing the pr
 
 ## 7. Related work ##
 
-There is a number of Python packages and framework that enable the orchestration and execution of task-based parallelism on various computing platforms. On single-node multi-core systems Python provides two packages: the [*multiprocessing*](https://docs.python.org/3/library/multiprocessing.html) and the [*concurrent.futures*](https://docs.python.org/3/library/concurrent.futures.html). The [*futures* package of *mpi4py*](https://mpi4py.readthedocs.io/en/stable/mpi4py.futures.html) provides an extension of *futures* on top of the MPI programming model. [*DTM*](http://deap.gel.ulaval.ca/doc/0.9/api/dtm.html) is an MPI-based framework that supports task-based parallelism. However, *DTM* is obsolete and has been replaced by [*Scoop*](http://pyscoop.org), which follows a more distributed-based approach without relying on MPI. This is also the case for the [*Celery*](http://www.celeryproject.org/) and [*Dask*](http://dask.pydata.org/en/latest/) frameworks, which mainly target cloud computing environments. Finally, [*PycompSS*](https://pypi.org/project/pycompss/) is a compiler-based approach, where task functions and code parallelization is based on annotations.    
+There is a number of Python packages and frameworks that enable the orchestration and execution of task-based parallelism on various computing platforms. On single-node multi-core systems Python provides two packages: the [*multiprocessing*](https://docs.python.org/3/library/multiprocessing.html) and the [*concurrent.futures*](https://docs.python.org/3/library/concurrent.futures.html). The [*futures* package of *mpi4py*](https://mpi4py.readthedocs.io/en/stable/mpi4py.futures.html) provides an extension of *futures* on top of the MPI programming model. [*DTM*](http://deap.gel.ulaval.ca/doc/0.9/api/dtm.html) is an MPI-based framework that supports task-based parallelism. However, *DTM* is obsolete and has been replaced by [*Scoop*](http://pyscoop.org), which follows a more distributed-based approach without relying on MPI. This is also the case for the [*Celery*](http://www.celeryproject.org/) and [*Dask*](http://dask.pydata.org/en/latest/) frameworks, which mainly target cloud computing environments. Finally, [*PycompSS*](https://pypi.org/project/pycompss/) is a compiler-based approach, where task functions and code parallelization is based on annotations.    
 
 
 |Framework           | Clusters | Nested parallelism           | MPI |
