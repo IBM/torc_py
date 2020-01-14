@@ -40,7 +40,7 @@ def main():
             tasks.append(task)
 
         for t in torc.as_completed(tasks):
-            print("1-Received: sqrt({})={:.3f}".format(t.input(), t.result()))
+            print("1-Received: {}^2={:.3f}".format(t.input(), t.result()))
 
         t1 = torc.gettime()
         print("1-Elapsed time={:.2f} s".format(t1 - t0))
@@ -60,7 +60,7 @@ def main():
         t1 = torc.gettime()
 
         for t in tasks:
-            print("2-Received: sqrt({})={:.3f}".format(t.input(), t.result()))
+            print("2-Received: {}^2={:.3f}".format(t.input(), t.result()))
 
         print("2-Elapsed time={:.2f} s".format(t1 - t0))
 

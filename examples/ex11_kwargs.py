@@ -37,7 +37,7 @@ def main():
     t1 = torc.gettime()
 
     for t in tasks:
-        print("Received: sqrt({})={:.3f}".format(t.input(), t.result()))
+        print("Received: {}^2={:.3f}".format(t.input(), t.result()))
 
     print("1-Elapsed time={:.2f} s".format(t1 - t0))
 
