@@ -23,7 +23,7 @@ def get_files(path):
     all_files = []
     for dirpath, dirnames, filenames in os.walk(path):
         for f in filenames:
-            if f.endswith('.ppm') | f.endswith('.jpg') | f.endswith('.JPEG') | f.endswith('.png'):
+            if f.endswith('.ppm') | f.endswith('.jpg') | f.endswith('.jpeg') | f.endswith('.JPEG') | f.endswith('.png'):
                 all_files.append(os.path.join(dirpath, f))
 
     return sorted(all_files)
@@ -32,9 +32,10 @@ def get_files(path):
 def work(i):
     global files
     f = files[i]
-    im = Image.open(f)
-    im = im.resize([32, 32])
-    im.close()
+    with Image.open(f) as im:
+        im = im.resize((32,32))
+        # do something more
+
     return None
 
 

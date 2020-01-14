@@ -1,6 +1,6 @@
 mpi4py
 numpy
-termcolor==1.1.0
+termcolor
 cma
-pillow==6.2.0
+pillow
 coloredlogs
