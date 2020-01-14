@@ -21,14 +21,45 @@ from functools import partial
 # import mpi4py
 # mpi4py.rc.initialize = False
 # mpi4py.rc.finalize = False
-from mpi4py import MPI
 import builtins
 import itertools
 import logging
-
+import coloredlogs
 
 _torc_log = logging.getLogger(__name__)
 _torc_log.setLevel(logging.DEBUG)
+
+coloredlogs.install(fmt='[%(name)s %(levelname)s]  %(message)s', stream=sys.stdout, level=logging.DEBUG)
+
+
+class COMM(object):
+    def __init__(self):
+        self.rank = 0
+        self.size = 1
+    def Get_rank(self):
+        return self.rank
+    def Get_size(self):
+        return self.size
+    def barrier(self):
+        pass
+
+
+class myMPI(object):
+    def __init__(self):
+        self.COMM_WORLD = COMM()
+        self.THREAD_MULTIPLE = '3'
+
+    def Query_thread(self):
+        return self.THREAD_MULTIPLE
+
+
+try:
+    from mpi4py import MPI
+    _torc_log.debug('mpi4py module was succesfully imported')
+except:
+    _torc_log.warning("mpi4py could not be imported, loading a dummy MPI module.")
+    MPI = myMPI()
+
 
 # Constants - to be moved to constants.py
 TORC_SERVER_TAG = 100
@@ -114,9 +145,12 @@ class TaskT:
         return self.desc["out"]
 
     def __del__(self):
-        del self.desc["parent"]
-        del self.desc["args"]
-        del self.desc["kwargs"]
+        if "parent" in self.desc:
+            del self.desc["parent"]
+        if "args" in self.desc:
+            del self.desc["args"]
+        if "kwargs" in self.desc:
+            del self.desc["kwargs"]
         del self.desc
 
 
