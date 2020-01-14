@@ -378,9 +378,10 @@ def get_files(path):
 def work(i):
     global files
     f = files[i]
-    im = Image.open(f)
-    im = im.resize([32, 32])
-    im.close()
+    with Image.open(f) as im:
+        im = im.resize((32, 32))
+        # do something more here
+
     return None
 
 
@@ -427,7 +428,7 @@ def rosenbrock(x):
     return sum(100 * (x[i]**2 - x[i+1])**2 + (x[i] - 1)**2 for i in range(n-1))
 
 def main():
-    es = cma.CMAEvolutionStrategy(2 * [0], 0.5, {'popsize':8})
+    es = cma.CMAEvolutionStrategy(2 * [0], 0.5, {'popsize':640})
     while not es.stop():
         solutions = es.ask()
         es.tell(solutions, torc.map(rosenbrock, solutions))
