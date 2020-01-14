@@ -60,7 +60,7 @@ def main():
     t1 = torcpy.gettime()
 
     for t in tasks:
-        print("Received: sqrt({})={:.3f}".format(t.input(), t.result()))
+        print("Received: {}^2={:.3f}".format(t.input(), t.result()))
 
     print("Elapsed time={:.2f} s".format(t1 - t0))
 
@@ -81,10 +81,10 @@ work inp=1.000, out=1.000 ...on node 0 worker 0 thread 4536538560
 work inp=2.000, out=4.000 ...on node 0 worker 0 thread 4536538560
 work inp=3.000, out=9.000 ...on node 0 worker 0 thread 4536538560
 work inp=4.000, out=16.000 ...on node 0 worker 0 thread 4536538560
-Received: sqrt(1)=1.000
-Received: sqrt(2)=4.000
-Received: sqrt(3)=9.000
-Received: sqrt(4)=16.000
+Received: 1^2=1.000
+Received: 2^2=4.000
+Received: 3^2=9.000
+Received: 4^2=16.000
 Elapsed time=4.03 s
 TORCPY: node[0]: created=4, executed=4
 ```
@@ -100,10 +100,10 @@ work inp=1.000, out=1.000 ...on node 0 worker 0 thread 4585866688
 work inp=2.000, out=4.000 ...on node 1 worker 1 thread 4623332800
 work inp=3.000, out=9.000 ...on node 0 worker 0 thread 4585866688
 work inp=4.000, out=16.000 ...on node 1 worker 1 thread 4623332800
-Received: sqrt(1)=1.000
-Received: sqrt(2)=4.000
-Received: sqrt(3)=9.000
-Received: sqrt(4)=16.000
+Received: 1^2=1.000
+Received: 2^2=4.000
+Received: 3^2=9.000
+Received: 4^2=16.000
 Elapsed time=2.03 s
 TORCPY: node[0]: created=4, executed=2
 TORCPY: node[1]: created=0, executed=2
@@ -120,10 +120,10 @@ work inp=1.000, out=1.000 ...on node 0 worker 0 thread 4607645120
 work inp=2.000, out=4.000 ...on node 0 worker 1 thread 123145550958592
 work inp=3.000, out=9.000 ...on node 0 worker 0 thread 4607645120
 work inp=4.000, out=16.000 ...on node 0 worker 1 thread 123145550958592
-Received: sqrt(1)=1.000
-Received: sqrt(2)=4.000
-Received: sqrt(3)=9.000
-Received: sqrt(4)=16.000
+Received: 1^2=1.000
+Received: 2^2=4.000
+Received: 3^2=9.000
+Received: 4^2=16.000
 Elapsed time=2.02 s
 TORCPY: node[0]: created=4, executed=4
 ```
@@ -139,10 +139,10 @@ work inp=2.000, out=4.000 ...on node 0 worker 0 thread 4560111040
 work inp=1.000, out=1.000 ...on node 0 worker 1 thread 123145531727872
 work inp=4.000, out=16.000 ...on node 1 worker 2 thread 4643915200
 work inp=3.000, out=9.000 ...on node 1 worker 3 thread 123145537077248
-Received: sqrt(1)=1.000
-Received: sqrt(2)=4.000
-Received: sqrt(3)=9.000
-Received: sqrt(4)=16.000
+Received: 1^2=1.000
+Received: 2^2=4.000
+Received: 3^2=9.000
+Received: 4^2=16.000
 Elapsed time=1.04 s
 TORCPY: node[0]: created=4, executed=2
 TORCPY: node[1]: created=0, executed=2

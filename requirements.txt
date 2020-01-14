@@ -4,3 +4,4 @@ termcolor
 cma
 pillow
 coloredlogs
+pytest
