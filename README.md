@@ -369,7 +369,7 @@ def get_files(path):
     all_files = []
     for dirpath, dirnames, filenames in os.walk(path):
         for f in filenames:
-            if f.endswith('.jpg') | f.endswith('.JPEG') | f.endswith('.png'):
+            if f.endswith('.jpg') | f.endswith('.jpeg') | f.endswith('.png'):
                 all_files.append(os.path.join(dirpath, f))
 
     return sorted(all_files)
