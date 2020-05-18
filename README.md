@@ -623,24 +623,23 @@ The measurements include the time for spawning the parallelism, executing the pr
 There is a number of Python packages and frameworks that enable the orchestration and execution of task-based parallelism on various computing platforms. On single-node multi-core systems Python provides two packages: the [*multiprocessing*](https://docs.python.org/3/library/multiprocessing.html) and the [*concurrent.futures*](https://docs.python.org/3/library/concurrent.futures.html). The [*futures* package of *mpi4py*](https://mpi4py.readthedocs.io/en/stable/mpi4py.futures.html) provides an extension of *futures* on top of the MPI programming model. [*DTM*](http://deap.gel.ulaval.ca/doc/0.9/api/dtm.html) is an MPI-based framework that supports task-based parallelism. However, *DTM* is obsolete and has been replaced by [*Scoop*](http://pyscoop.org), which follows a more distributed-based approach without relying on MPI. This is also the case for the [*Celery*](http://www.celeryproject.org/) and [*Dask*](http://dask.pydata.org/en/latest/) frameworks, which mainly target cloud computing environments. Finally, [*PycompSS*](https://pypi.org/project/pycompss/) is a compiler-based approach, where task functions and code parallelization is based on annotations.    
 
 
-|Framework           | Clusters | Nested parallelism           | MPI |
-|--------------------|----------|------------------------------|-----|
-| *multiprocessing*  | No       | No                           | No  |
-| *futures*          | No       | No                           | No  |
-| *mpi4py.futures*   | Yes      | No                           | No  |
-| *dtm (deap 0.9.2)* | Yes      | Inefficiently (threads)      | Yes |
-| *scoop (0.7.1.1)*  | Yes      | Yes, coroutines              | No  |
-| *celery (4.2.0)*   | Yes      | No                           | No  |
-| *dask (1.2.2)*     | Yes      | Inefficiently (more workers) | No  |
-| *pycompss (2.4)*   | Yes      | Yes                          | No  |
-| **torcpy**         | Yes      | Yes                          | Yes |
+|Framework           | Clusters | Nested parallelism           | MPI SPMD |
+|--------------------|----------|------------------------------|----------|
+| *multiprocessing*  | No       | No                           | No       |
+| *futures*          | No       | No                           | No       |
+| *mpi4py.futures*   | Yes      | No                           | No       |
+| *dtm (deap 0.9.2)* | Yes      | Inefficiently (threads)      | Yes      |
+| *scoop (0.7.1.1)*  | Yes      | Yes, coroutines              | No       |
+| *celery (4.2.0)*   | Yes      | No                           | No       |
+| *dask (1.2.2)*     | Yes      | Inefficiently (more workers) | No       |
+| *pycompss (2.4)*   | Yes      | Yes                          | No       |
+| **torcpy**         | Yes      | Yes                          | Yes      |
 
 
 
 ## Authors and contacts
  - Panagiotis Chatzidoukas, IBM Research - Zurich, hat@zurich.ibm.com
  - Cristiano Malossi, IBM Research - Zurich, acm@zurich.ibm.com
- - Costas Bekas, IBM Research - Zurich, bek@zurich.ibm.com
 
 ## Acknowledgments
 
