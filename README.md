@@ -646,6 +646,11 @@ There is a number of Python packages and frameworks that enable the orchestratio
 We would like to thank our colleagues in the IBM OCL team: Roxana Istrate, Florian Scheidegger, Andrea Bartezzaghi and Nico Gorbach.
 This work was supported by VIMMP (Virtual Materials Marketplace Project) (Horizon 2020, GA No 760907).
 
+## Related publication
+
+[Hadjidoukas:2020] torcpy: Supporting task parallelism in Python. SoftwareX 12:100517. 2020
+[[DOI]](https://doi.org/10.1016/j.softx.2020.100517)  
+
 ## References
 
 [Hadjidoukas:2012] A Runtime Library for Platform-Independent Task Parallelism. PDP 2012: 229-236. 2011
