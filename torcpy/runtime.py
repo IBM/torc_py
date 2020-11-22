@@ -375,8 +375,30 @@ def dequeue_steal():
     return task
 
 
+def sched_loop():
+    """Core scheduling loop
+    """
+    while True:
+        task = dequeue()
+        if task is None:
+            break
+
+        if not task:
+            if num_nodes() > 1 and TORC_STEALING_ENABLED:
+                task = _steal()
+                if task["type"] == "nowork":
+                    time.sleep(TORC_WORKER_YIELDTIME)
+                    break
+                else:
+                    pass
+            else:
+                break
+
+        _do_work(task)
+
+
 def waitall(tasks=None, as_completed=False):
-    """Suspend the calling task until all each spawned child tasks have completed
+    """Suspend the calling task until all spawned child tasks have completed
     """
     global torc_executed
     mytask = torc_tls.curr_task  # myself
@@ -393,23 +415,41 @@ def waitall(tasks=None, as_completed=False):
             mytask["completed"] = []
             break
 
-        while True:
-            task = dequeue()
-            if task is None:
-                break
+        sched_loop()
 
-            if not task:
-                if num_nodes() > 1 and TORC_STEALING_ENABLED:
-                    task = _steal()
-                    if task["type"] == "nowork":
-                        time.sleep(TORC_WORKER_YIELDTIME)
+    torc_tls.curr_task = mytask
+    return completed_tasks
+
+
+def waitsome(tasks, as_completed=False):
+    """Suspend the calling task until all the specified child tasks have completed
+    """
+    global torc_executed
+    mytask = torc_tls.curr_task  # myself
+
+    pending_task_ids = [task.desc["mytask"] for task in tasks]
+    pending_taskset = set(pending_task_ids)
+    completed_tasks = None
+    while True:
+        currently_completed_task_ids = [task["mytask"] for task in mytask["completed"]]
+        currently_completed_taskset = set(currently_completed_task_ids)
+
+        if pending_taskset <= currently_completed_taskset:  # pending is subset of completed
+            completed_list = mytask["completed"]
+            if as_completed:
+                completed_tasks = []
+                for t in completed_list:
+                    tid = t['mytask']
+                    if tid in pending_task_ids:
+                        completed_tasks.append(copy.copy(t))
+            for tid in pending_task_ids:
+                for i in range(len(completed_list)):
+                    if completed_list[i]['mytask'] == tid:
+                        del completed_list[i]
                         break
-                    else:
-                        pass
-                else:
-                    break
+            break
 
-            _do_work(task)
+        sched_loop()
 
     torc_tls.curr_task = mytask
     return completed_tasks
@@ -420,12 +460,15 @@ def wait(tasks=None):
     if tasks is None:
         waitall(tasks)
     else:
-        waitall(tasks)
+        waitsome(tasks)
     return tasks
 
 
 def as_completed(tasks=None):
-    completed_tasks = waitall(tasks, as_completed=True)
+    if tasks is None:
+        completed_tasks = waitall(tasks, as_completed=True)
+    else:
+        completed_tasks = waitsome(tasks, as_completed=True)
     t = []
     for c in completed_tasks:
         t.append(TaskT(c))
