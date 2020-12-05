@@ -283,6 +283,22 @@ def _do_work(task):
 
     f = task["f"]
     args = task["args"]
+
+    # print("ZZZ args=", args)
+    # print("varg=", task["varg"])
+    if task["varg"]:
+        args = list(args)
+        # print("XXX args=", args)
+        # print("XXX len(args)=", len(args))
+        for i in range(len(args)):
+            # print(i, '->', args[i])
+            shm_arg = _get_memory(args[i])
+            # print(i, '->', args[i], shm_arg)
+            if shm_arg is not None:
+                args[i] = shm_arg
+    else:
+        pass
+
     kwargs = task["kwargs"]
 
     if task["varg"]:
@@ -945,4 +961,63 @@ class TorcPoolExecutor:
 
     def __exit__(self, exc_type, exc_value, exc_traceback):
         return torc_wait(tasks=None)
+
+
+## 
+_torc_global_vars = {}
+
+def _register_memory(global_key, var):
+    global _torc_global_vars
+    _torc_global_vars[str(global_key)] = (id(var), var)
+
+def _get_memory(global_key):
+    global _torc_global_vars
+    global_key = str(global_key)
+    if global_key in _torc_global_vars:
+        var_ = _torc_global_vars[str(global_key)]
+        var_ = var_[0]
+        var = ctypes.cast(var_, ctypes.py_object).value
+    else:
+        var = None
+    return var
+
+def _alloc_mem(shape, dtype, root, i):
+    import numpy as np
+    global _torc_global_vars
+
+    print('xxx dtype=', dtype)
+    dt = np.dtype(dtype)
+    print(dt)
+    itemsize = np.dtype(dtype).itemsize
+    size = np.prod(shape)
+    if node_id() == 0:
+        nbytes = size * itemsize 
+    else: 
+        nbytes = 0
+
+    win = MPI.Win.Allocate_shared(nbytes, itemsize, comm=MPI.COMM_WORLD) 
+    buf, itemsize = win.Shared_query(0) 
+    print(itemsize, MPI.DOUBLE.Get_size())
+    A = np.ndarray(buffer=buf, dtype=dtype, shape=shape) 
+    
+    comm = MPI.COMM_WORLD
+    data = id(A)
+    id_A = comm.bcast(data, 0)
+
+    _register_memory(id_A, A)
+    print(id_A, id(A), A, flush=True)
+    return A
+
+def shm_alloc(shape, dtype):
+
+    nlocal_workers = num_local_workers()
+    t_all = []
+    ntasks = num_nodes()
+    for i in range(1, ntasks):
+        task = submit(_alloc_mem, shape, dtype, 0, i, qid=i*nlocal_workers)
+        t_all.append(task)
+    mem = _alloc_mem(shape, dtype, 0, 0)
+    waitall()
+    print(mem)
+    return mem
 

@@ -4,5 +4,6 @@ from .runtime import gettime, spmd, enable_stealing, disable_stealing
 from .runtime import finalize, waitall
 from .runtime import as_completed
 from .runtime import TorcPoolExecutor
+from .runtime import shm_alloc
 
 name = "torcpy"
