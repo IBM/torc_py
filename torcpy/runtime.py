@@ -154,7 +154,7 @@ class TaskT:
         del self.desc
 
 
-def submit(f, *a, qid=-1, callback=None, async_callback=True, counted=True, **kwargs):
+def submit(f, *a, qid=-1, callback=None, async_callback=True, counted=True, deps=None, **kwargs):
     """Submit a task to be executed with the given arguments.
 
     Args:
@@ -215,6 +215,18 @@ def submit(f, *a, qid=-1, callback=None, async_callback=True, counted=True, **kw
         task_level = TORC_QUEUE_LEVELS - 1
     task["level"] = task_level
 
+    # XXXX
+    task["status"] = 0
+    task["succ"] = []
+    if deps is not None:
+        for t in deps:
+            print("t=", t)
+            pred_task = t.desc
+            print("pred_task=", pred_task)
+            if pred_task["status"] != 2:
+                pred_task["succ"].append(task)
+                task["deps"] = task["deps"] + 1
+
     cb_task = None
     if callback is not None:
         cb_task = dict()
@@ -262,11 +274,12 @@ def submit(f, *a, qid=-1, callback=None, async_callback=True, counted=True, **kw
         return
 
     # Enqueue to local or remote queue
-    if node_id() == qid:
-        enqueue(task_level, task)
-    else:
-        task["type"] = "enqueue"
-        _send_desc_and_data(qid, task)
+    if task["deps"] == 0:
+        if node_id() == qid:
+            enqueue(task_level, task)
+        else:
+            task["type"] = "enqueue"
+            _send_desc_and_data(qid, task)
 
     # dictionary to object
     task_obj = TaskT(task)
@@ -319,6 +332,21 @@ def _do_work(task):
                     torc_executed += 1
                     torc_stats_lock.release()
 
+        # XXXX
+        task["status"] = 2
+
+        # Check successors
+        for succ_task in task["succ"]:
+            succ_task["deps"] -= 1
+            # Enqueue to local or remote queue
+            qid = node_id()
+            if succ_task["deps"] == 0:
+                if node_id() == qid:
+                    task_level=succ_task["level"]
+                    enqueue(task_level, succ_task)
+                else:
+                    succ_task["type"] = "enqueue"
+                    _send_desc_and_data(qid, succ_task)
     else:
         task["out"] = y
         dest = task["homenode"]
@@ -561,6 +589,22 @@ def _server():
                         torc_stats_lock.acquire()
                         torc_executed += 1
                         torc_stats_lock.release()
+
+            # XXXX
+            real_task["status"] = 2 
+
+            # Check successors
+            for succ_task in real_task["succ"]:
+                succ_task["deps"] -= 1
+                # Enqueue to local or remote queue
+                qid = source_rank
+                if succ_task["deps"] == 0:
+                    if node_id() == qid:
+                        task_level=succ_task["level"]
+                        enqueue(task_level, succ_task)
+                    else:
+                        succ_task["type"] = "enqueue"
+                        _send_desc_and_data(qid, succ_task)
 
         elif ttype == "steal":
             t = dequeue_steal()
