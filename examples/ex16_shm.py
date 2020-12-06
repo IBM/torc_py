@@ -15,18 +15,26 @@ from mpi4py import MPI
 import numpy as np
 import ctypes
 
-def foo(A, x):
-    print(A, flush=True)
+def foo(A, i, x):
+    print("foo:", A, id(A), flush=True)
   
     print("foo begins", flush=True)
     print("foo: A=>", A, flush=True)
-    A[x] = A[x] + 99*(x+1)
+    A[i] = A[i] + x
     print("foo2: A=>", A, flush=True)
-    return x + 1
+
+
+def bar(A, i, x):
+    print("bar:", A, id(A), flush=True)
+  
+    print("bar begins", flush=True)
+    print("bar: A=>", A, flush=True)
+    A[i] = A[i] + x
+    print("bar2: A=>", A, flush=True)
 
 
 def main():
-    N = 10
+    N = 1
     shape = (N,)
     dtype = 'float64'
    
@@ -35,20 +43,24 @@ def main():
 
     # primary task initializes array A on rank 0
     for i in range(0, N):
-        A[i] = 100*i
+        A[i] = 1
 
     print('before submitting', A)
 
-    f1 = torc.submit(foo, A, 1)
-    f2 = torc.submit(foo, A, 2)
-    f3 = torc.submit(foo, A, 3)
-    f4 = torc.submit(foo, A, 4)
+    q = 0
+    q = (q+1) % torc.num_nodes()
+    f1 = torc.submit(foo, A, 0, 10, qid=q)
+    torc.waitall()
+    q = (q+1) % torc.num_nodes()
+    f2 = torc.submit(bar, A, 0, 100, qid=q)
+    torc.waitall()
+    q = (q+1) % torc.num_nodes()
+    f3 = torc.submit(foo, A, 0, 1000, qid=q)
+    torc.waitall()
+    q = (q+1) % torc.num_nodes()
+    f4 = torc.submit(bar, A, 0, 10000, qid=q)
     torc.waitall()
 
-    print(f1.result())
-    print(f2.result())
-    print(f3.result())
-    print(f4.result())
     print("main: A=>", A, flush=True)
 
 

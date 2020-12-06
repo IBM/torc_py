@@ -200,6 +200,15 @@ def submit(f, *a, qid=-1, callback=None, async_callback=True, counted=True, **kw
         task["varg"] = False
         task["args"] = copy.copy(*a)  # firstprivate
     else:
+        args = list(a)
+        for i in range(len(args)):
+            shm_key = _get_memory_key(args[i])
+            # print("args[{}]={} shm_arg={}".format(i, args[i], shm_arg))
+            if shm_key is not None:
+                args[i] = shm_key
+        else:
+            pass
+        a = args
         task["args"] = copy.copy(a)  # firstprivate
     task["kwargs"] = copy.copy(kwargs)
 
@@ -284,16 +293,10 @@ def _do_work(task):
     f = task["f"]
     args = task["args"]
 
-    # print("ZZZ args=", args)
-    # print("varg=", task["varg"])
     if task["varg"]:
         args = list(args)
-        # print("XXX args=", args)
-        # print("XXX len(args)=", len(args))
         for i in range(len(args)):
-            # print(i, '->', args[i])
             shm_arg = _get_memory(args[i])
-            # print(i, '->', args[i], shm_arg)
             if shm_arg is not None:
                 args[i] = shm_arg
     else:
@@ -980,6 +983,22 @@ def _get_memory(global_key):
     else:
         var = None
     return var
+
+def _get_memory_key(var):
+    global _torc_global_vars
+    local_key = id(var)
+
+    global_key = None
+    # print("global_vars.keys()=", _torc_global_vars.keys())
+
+    for k in _torc_global_vars.keys():
+        v = _torc_global_vars[k]
+        # print("v=", v)
+        if v[0] == local_key:
+            global_key = k
+            break
+
+    return global_key
 
 def _alloc_mem(shape, dtype, root, i):
     import numpy as np
