@@ -638,7 +638,7 @@ There is a number of Python packages and frameworks that enable the orchestratio
 
 
 ## People and contacts
-- Developer: Panagiotis Hadjidoukas, University of Patras, phadjido@gmail.com or phadjido@upatras.gr  
+- Researcher and Developer: Panagiotis Hadjidoukas, University of Patras, phadjido@gmail.com or phadjido@upatras.gr  
 - Manager: Cristiano Malossi, IBM Research - Zurich, acm@zurich.ibm.com
 
 ## Acknowledgments
